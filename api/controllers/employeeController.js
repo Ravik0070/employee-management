@@ -1,5 +1,7 @@
 const Employee = require("../models/Employee");
-const DataModel = require('../models/Data'); 
+const DataModel = require("../models/Data");
+const FileModel = require("../models/Files");
+const fs = require("fs");
 
 //functions for admin only
 exports.GetEmployees = async (req, res) => {
@@ -55,7 +57,6 @@ exports.DeleteEmployee = async (req, res) => {
   }
 };
 
-
 //functions for admin and managers
 exports.GetAllData = async (req, res) => {
   try {
@@ -69,7 +70,7 @@ exports.GetDataById = async (req, res) => {
   try {
     const data = await DataModel.findById(req.params.id);
     if (!data) {
-      return res.status(404).json({ message: 'Data not found' });
+      return res.status(404).json({ message: "Data not found" });
     }
     res.status(200).json(data);
   } catch (error) {
@@ -80,21 +81,24 @@ exports.DeleteData = async (req, res) => {
   try {
     const deletedData = await DataModel.findByIdAndDelete(req.params.id);
     if (!deletedData) {
-      return res.status(404).json({ message: 'Data not found' });
+      return res.status(404).json({ message: "Data not found" });
     }
-    res.status(200).json({ message: 'Data deleted successfully' });
+    res.status(200).json({ message: "Data deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-
 //functions Admins, Managers, Employees
 exports.UpdateData = async (req, res) => {
   try {
-    const updatedData = await DataModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedData = await DataModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
     if (!updatedData) {
-      return res.status(404).json({ message: 'Data not found' });
+      return res.status(404).json({ message: "Data not found" });
     }
     res.status(200).json(updatedData);
   } catch (error) {
@@ -111,3 +115,38 @@ exports.CreateData = async (req, res) => {
   }
 };
 
+//File functions
+exports.UploadFile = async (req, res) => {
+  try {
+    const newFile = new FileModel({
+      employeeID: req.body.employeeID,
+      adminID: req.body.adminID,
+      filePath: req.body.filePath,
+    });
+    await newFile.save();
+    res.status(201).json(newFile);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+exports.GetFiles = async (req, res) => {
+  try {
+    const allfiles = await FileModel.find();
+    res.status(200).json(allfiles);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+exports.DownloadFile = async (req, res) => {
+  try {
+    const fileId = req.params.id;
+    const file = await FileModel.findById(fileId);
+    if (!file) {
+      return res.status(404).json({ error: "File not found" });
+    }
+    res.json({ fileName: file.filePath });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

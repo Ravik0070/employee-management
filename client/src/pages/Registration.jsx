@@ -51,7 +51,10 @@ const Registration = () => {
         ...formData,
         image: imageUrl,
       };
-      await axios.post("http://localhost:5000/api/auth/register", updatedFormData);
+      await axios.post(
+        "http://localhost:5000/api/auth/register",
+        updatedFormData
+      );
       navigate("/");
     } catch (error) {
       console.log(error);

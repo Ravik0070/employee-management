@@ -16,7 +16,6 @@ const verifyToken = (req, res, next) => {
 //only admins
 const verifyTokenAndAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
-    console.log(req.user)
     if (req.user.role == "Admin") {
       next();
     } else {
@@ -26,24 +25,28 @@ const verifyTokenAndAdmin = (req, res, next) => {
 };
 //only managers and admins
 const verifyTokenAndManagersOrAdmin = (req, res, next) => {
-    verifyToken(req, res, () => {
-      if (req.user.role=="Admin" || req.user.role == "Manager" ) {
-        next();
-      } else {
-        res.status(403).json("You are not allowed to do that either");
-      }
-    });
+  verifyToken(req, res, () => {
+    if (req.user.role == "Admin" || req.user.role == "Manager") {
+      next();
+    } else {
+      res.status(403).json("You are not allowed to do that either");
+    }
+  });
 };
 //all employees
 const verifyTokenAndAuthorization = (req, res, next) => {
-    verifyToken(req, res, () => {
-      if (req.user.role=="Admin" || req.user.role == "Manager" || req.user.role == "Employee" ) {
-        next();
-      } else {
-        res.status(403).json("You are not allowed to do that either");
-      }
-    });
-  };
+  verifyToken(req, res, () => {
+    if (
+      req.user.role == "Admin" ||
+      req.user.role == "Manager" ||
+      req.user.role == "Employee"
+    ) {
+      next();
+    } else {
+      res.status(403).json("You are not allowed to do that either");
+    }
+  });
+};
 
 module.exports = {
   verifyTokenAndManagersOrAdmin,

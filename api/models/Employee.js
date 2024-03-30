@@ -12,7 +12,7 @@ const employeeSchema = new mongoose.Schema(
       type: String,
       enum: ["Admin", "Manager", "Employee"],
       required: true,
-      default:"Employee"
+      default: "Employee",
     },
     image: { type: String },
     password: { type: String, required: true },

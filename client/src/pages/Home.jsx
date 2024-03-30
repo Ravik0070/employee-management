@@ -8,12 +8,74 @@ const Home = () => {
   const { currentUser } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
   const [data, setData] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [file, setFile] = useState();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     employeeID: currentUser?.employeeID,
     userID: currentUser?._id,
   });
+
+  const handleFileChange = async (e) => {
+    setFile(e.target.files[0]);
+  };
+  const upload = async () => {
+    try {
+      const fileData = new FormData();
+      fileData.append("file", file);
+      const res = await axios.post(
+        "http://localhost:5000/api/upload",
+        fileData
+      );
+      return res.data;
+    } catch (error) {}
+  };
+
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    try {
+      let fileUrl;
+      if (file) {
+        fileUrl = await upload();
+      }
+      const res = await axios.post(
+        "http://localhost:5000/api/employee/uploadfile",
+        {
+          employeeID: currentUser?.employeeID,
+          adminID: currentUser?._id,
+          filePath: fileUrl,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${currentUser?.accessToken}`,
+          },
+        }
+      );
+      console.log(res.data);
+      // navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleDownload = async (fileId) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/employee/downloadfile/${fileId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${currentUser?.accessToken}`,
+          },
+        }
+      );
+      const fileName = res.data.fileName;
+      const downloadUrl = `./upload/${fileName}`;
+      // Initiate file download using the constructed URL
+      window.open(downloadUrl, "_blank");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleUserView = (userId) => {
     navigate(`/employee/${userId}`);
@@ -105,6 +167,15 @@ const Home = () => {
             },
           }
         );
+        const files = await axios.get(
+          "http://localhost:5000/api/employee/getfiles",
+          {
+            headers: {
+              Authorization: `Bearer ${currentUser?.accessToken}`,
+            },
+          }
+        );
+        setFiles(files.data);
         setData(res.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -120,9 +191,28 @@ const Home = () => {
 
   return (
     <div className="home">
-      <img src={
-              currentUser?.image ? `../upload/${currentUser?.image}` : ""
-            } alt="Profile" />
+      <div className="uploads">
+        <img
+          src={currentUser?.image ? `../upload/${currentUser?.image}` : ""}
+          alt="Profile"
+        />
+
+        {currentUser?.role === "Admin" && (
+          <div>
+            <form onSubmit={handleUpload}>
+              <label htmlFor="excel">Upload Excel file</label>
+              <input
+                type="file"
+                id="excel"
+                name="excel"
+                accept=".xls, .xlsx"
+                onChange={handleFileChange}
+              />
+              <button>Upload</button>
+            </form>
+          </div>
+        )}
+      </div>
       <h2>Hey, {currentUser?.name}</h2>
       {(currentUser?.role === "Admin" || currentUser?.role === "Manager") && (
         <>
@@ -190,6 +280,7 @@ const Home = () => {
         />
         <button type="submit">Add</button>
       </form>
+      <hr />
       <h1>Data List</h1>
       <table>
         <thead>
@@ -215,6 +306,27 @@ const Home = () => {
                   </button>
                 </td>
               )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <h1>Files List</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Download</th>
+          </tr>
+        </thead>
+        <tbody>
+          {files.map((item) => (
+            <tr key={item._id}>
+              <td>{item.filePath}</td>
+              <td>
+                <button onClick={() => handleDownload(item._id)}>
+                  Download
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

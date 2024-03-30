@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 
 const FileSchema = new mongoose.Schema(
   {
-    userID: {
-      type: String,
+    employeeID: {
+      type: Number,
       required: true,
     },
     adminID: {
-      type: Number,
+      type: String,
       required: true,
     },
     filePath: {
@@ -20,6 +20,6 @@ const FileSchema = new mongoose.Schema(
   }
 );
 
-const FileModel = mongoose.model("File", FileSchema);
+const FileModel = mongoose.model("Files", FileSchema);
 
-module.exports = DataModel;
+module.exports = FileModel;

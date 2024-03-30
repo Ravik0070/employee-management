@@ -16,7 +16,7 @@ export const AuthContextProvider = ({ children }) => {
       setCurrentUser(other);
       return resp;
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
   const logout = async (inputs) => {

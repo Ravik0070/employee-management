@@ -86,7 +86,7 @@ const SingleData = () => {
             required
           />
         </div>
-       
+
         <button type="submit">Save changes</button>
       </form>
     </div>

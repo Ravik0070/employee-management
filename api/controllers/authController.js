@@ -26,7 +26,6 @@ exports.Register = async (req, res) => {
       image: req.body.image,
       role: req.body.role || "Employee",
     });
-    console.log(req.body)
     await employee.save();
     res.sendStatus(201);
   } catch (error) {

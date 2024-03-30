@@ -44,6 +44,8 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/employee", employeeRoutes);
 
+
+// uploading files
 app.post("/api/upload", upload.single("file"), function (req, res) {
   try {
     const file = req.file;
